@@ -4,18 +4,18 @@ using Mono.Options;
 
 namespace BundleReplacer.Commands;
 
-public class MonoBehaviourImportCommand : Command
+public class TextAssetImportCommand : Command
 {
     private string? bundlePath;
     private string? replaceDir;
     private string? outputPath;
 
-    public MonoBehaviourImportCommand() : base("import-mono-behaviours", "Import MonoBehaviours into a bundle file")
+    public TextAssetImportCommand() : base("import-text-assets", "Import TextAssets into a bundle file")
     {
         Options = new OptionSet
         {
             {"p|path=", "The path to the original bundle file", v => bundlePath = v},
-            {"r|replace=", "The path to the json files to replace", v => replaceDir = v},
+            {"r|replace=", "The path to the binary files to replace", v => replaceDir = v},
             {"o|output=", "The output path", v => outputPath = v}
         };
     }
@@ -39,31 +39,31 @@ public class MonoBehaviourImportCommand : Command
         var bundle = manager.LoadBundleFile(bundlePath);
         var asset = manager.LoadAssetsFileFromBundle(bundle, 0);
 
-        var monoBehaviours = asset.file.GetAssetsOfType(AssetClassID.MonoBehaviour);
-        if (monoBehaviours.Count == 0) { return; }
+        var textAssets = asset.file.GetAssetsOfType(AssetClassID.TextAsset);
+        if (textAssets.Count == 0) { return; }
 
         bool changed = false;
 
-        foreach (var monoBehaviour in monoBehaviours)
+        foreach (var textAsset in textAssets)
         {
-            var monoBehaviourInfo = manager.GetBaseField(asset, monoBehaviour);
+            var textAssetInfo = manager.GetBaseField(asset, textAsset);
 
-            var name = monoBehaviourInfo["m_Name"].AsString;
+            var name = textAssetInfo["m_Name"].AsString;
             if (string.IsNullOrWhiteSpace(name))
             {
-                var script = manager.GetBaseField(asset, monoBehaviourInfo["m_Script"]["m_PathID"].AsLong);
+                var script = manager.GetBaseField(asset, textAssetInfo["m_Script"]["m_PathID"].AsLong);
                 if (script is not null) { name = script["m_Name"].AsString; }
             }
 
-            var id = monoBehaviour.PathId;
-            var jsonPath = $"{replaceDir}/{name}-{id:X16}.json";
+            var id = textAsset.PathId;
+            var binPath = $"{replaceDir}/{name}-{id:X16}.bin";
 
-            if (!File.Exists(jsonPath)) { continue; }
+            if (!File.Exists(binPath)) { continue; }
 
-            using var reader = new StreamReader(jsonPath);
-            var template = manager.GetTemplateBaseField(asset, monoBehaviour);
-            var bytes = AssetImportExport.ImportJsonAsset(template, reader, out var ex);
-            monoBehaviour.Replacer = new ContentReplacerFromBuffer(bytes);
+            textAssetInfo["m_Script"].AsByteArray = File.ReadAllBytes(binPath);
+
+            var bytes = textAssetInfo.WriteToByteArray();
+            textAsset.Replacer = new ContentReplacerFromBuffer(bytes);
 
             changed = true;
         }
