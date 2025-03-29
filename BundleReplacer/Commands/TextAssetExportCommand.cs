@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET.Extra;
+﻿using BundleReplacer.Helper;
 using Mono.Options;
 
 namespace BundleReplacer.Commands;
@@ -26,37 +26,8 @@ public class TextAssetExportCommand : Command
         {
             throw new ArgumentException("Missing required arguments");
         }
-        ExtractBundle(bundlePath, outputDir);
+        ExportCommand.ExtractBundle(bundlePath, outputDir, new BundleReplaceHelper.Filter() { TextAsset = true });
 
         return 0;
-    }
-
-    public static void ExtractBundle(string bundlePath, string outputDir)
-    {
-        var manager = new AssetsManager();
-        var bundle = manager.LoadBundleFile(bundlePath);
-        var asset = manager.LoadAssetsFileFromBundle(bundle, 0);
-
-        var textAssets = asset.file.GetAssetsOfType(AssetClassID.TextAsset);
-        if (textAssets.Count == 0) { return; }
-
-        Directory.CreateDirectory(outputDir);
-
-        foreach (var textAsset in textAssets)
-        {
-            var textAssetInfo = manager.GetBaseField(asset, textAsset);
-
-            var name = textAssetInfo["m_Name"].AsString;
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                var script = manager.GetBaseField(asset, textAssetInfo["m_Script"]["m_PathID"].AsLong);
-                if (script is not null) { name = script["m_Name"].AsString; }
-            }
-
-            var id = textAsset.PathId;
-            var binPath = $"{outputDir}/{name}-{id:X16}.bin";
-
-            File.WriteAllBytes(binPath, textAssetInfo["m_Script"].AsByteArray);
-        }
     }
 }

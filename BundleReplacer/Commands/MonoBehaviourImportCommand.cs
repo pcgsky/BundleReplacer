@@ -1,8 +1,5 @@
-﻿using AssetsTools.NET;
-using AssetsTools.NET.Extra;
-using BundleReplacer.Helper;
+﻿using BundleReplacer.Helper;
 using Mono.Options;
-using BundleHelper = BundleReplacer.Helper.BundleHelper;
 
 namespace BundleReplacer.Commands;
 
@@ -30,49 +27,8 @@ public class MonoBehaviourImportCommand : Command
         {
             throw new ArgumentException("Missing required arguments");
         }
-        ImportBundle(bundlePath, replaceDir, outputPath);
+        ImportCommand.ImportBundle(bundlePath, replaceDir, outputPath, new BundleReplaceHelper.Filter() { MonoBehaviour = true });
 
         return 0;
-    }
-
-    public static void ImportBundle(string bundlePath, string replaceDir, string outputPath)
-    {
-        var manager = new AssetsManager();
-        var bundle = manager.LoadBundleFile(bundlePath);
-        var asset = manager.LoadAssetsFileFromBundle(bundle, 0);
-
-        var monoBehaviours = asset.file.GetAssetsOfType(AssetClassID.MonoBehaviour);
-        if (monoBehaviours.Count == 0) { return; }
-
-        bool changed = false;
-
-        foreach (var monoBehaviour in monoBehaviours)
-        {
-            var monoBehaviourInfo = manager.GetBaseField(asset, monoBehaviour);
-
-            var name = monoBehaviourInfo["m_Name"].AsString;
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                var script = manager.GetBaseField(asset, monoBehaviourInfo["m_Script"]["m_PathID"].AsLong);
-                if (script is not null) { name = script["m_Name"].AsString; }
-            }
-
-            var id = monoBehaviour.PathId;
-            var jsonPath = $"{replaceDir}/{name}-{id:X16}.json";
-
-            if (!File.Exists(jsonPath)) { continue; }
-
-            using var reader = new StreamReader(jsonPath);
-            var template = manager.GetTemplateBaseField(asset, monoBehaviour);
-            var bytes = AssetImportExport.ImportJsonAsset(template, reader, out var ex);
-            monoBehaviour.Replacer = new ContentReplacerFromBuffer(bytes);
-
-            changed = true;
-        }
-
-        if (!changed) { return; }
-
-        bundle.file.BlockAndDirInfo.DirectoryInfos[0].SetNewData(asset.file);
-        BundleHelper.CompressBundle(outputPath, manager, bundle);
     }
 }

@@ -3,6 +3,8 @@ using Mono.Options;
 
 CommandSet commands = new("BundleReplacer")
 {
+    new ExportCommand(),
+    new ImportCommand(),
     new MonoBehaviourExportCommand(),
     new MonoBehaviourImportCommand(),
     new TextAssetExportCommand(),
