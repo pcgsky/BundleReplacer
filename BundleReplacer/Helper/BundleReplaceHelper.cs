@@ -23,7 +23,7 @@ internal static class BundleReplaceHelper
         bundle = manager.LoadBundleFile(outputPath + ".tmp", true);
         using (var writer = new AssetsFileWriter(outputPath))
         {
-            bundle.file.Pack(writer, AssetBundleCompressionType.LZMA);
+            bundle.file.Pack(writer, AssetBundleCompressionType.LZ4);
         }
         manager.UnloadAll();
         File.Delete(outputPath + ".tmp");
@@ -31,6 +31,15 @@ internal static class BundleReplaceHelper
 
     public static Filter ParseFilter(string filterStr)
     {
+        if (string.IsNullOrWhiteSpace(filterStr))
+        {
+            return new Filter()
+            {
+                MonoBehaviour = true,
+                TextAsset = true,
+                Texture2D = true,
+            };
+        }
         var list = filterStr.Split(',');
         var filter = new Filter();
         foreach (var item in list)

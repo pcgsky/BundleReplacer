@@ -50,13 +50,13 @@ public class ImportCommand : Command
             switch (info.TypeId)
             {
                 case (int)AssetClassID.MonoBehaviour:
-                    if (filter.MonoBehaviour) { changed = changed || MonoBehaviour.Import(replaceDir, manager, bundle, assets, info); }
+                    if (filter.MonoBehaviour) { changed = MonoBehaviour.Import(replaceDir, manager, bundle, assets, info) || changed; }
                     break;
                 case (int)AssetClassID.TextAsset:
-                    if (filter.TextAsset) { changed = changed || TextAsset.Import(replaceDir, manager, bundle, assets, info); }
+                    if (filter.TextAsset) { changed = TextAsset.Import(replaceDir, manager, bundle, assets, info) || changed; }
                     break;
                 case (int)AssetClassID.Texture2D:
-                    if (filter.Texture2D) { changed = changed || Texture2D.Import(replaceDir, manager, bundle, assets, info); }
+                    if (filter.Texture2D) { changed = Texture2D.Import(replaceDir, manager, bundle, assets, info) || changed; }
                     break;
             }
         }
