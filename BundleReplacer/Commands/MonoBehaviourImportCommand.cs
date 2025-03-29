@@ -1,6 +1,8 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
+using BundleReplacer.Helper;
 using Mono.Options;
+using BundleHelper = BundleReplacer.Helper.BundleHelper;
 
 namespace BundleReplacer.Commands;
 
@@ -71,18 +73,6 @@ public class MonoBehaviourImportCommand : Command
         if (!changed) { return; }
 
         bundle.file.BlockAndDirInfo.DirectoryInfos[0].SetNewData(asset.file);
-
-        try { Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!); } catch (Exception) { }
-        using (var writer = new AssetsFileWriter(outputPath + ".tmp"))
-        {
-            bundle.file.Write(writer);
-        }
-        bundle = manager.LoadBundleFile(outputPath + ".tmp", true);
-        using (var writer = new AssetsFileWriter(outputPath))
-        {
-            bundle.file.Pack(writer, AssetBundleCompressionType.LZMA);
-        }
-        manager.UnloadAll();
-        File.Delete(outputPath + ".tmp");
+        BundleHelper.CompressBundle(outputPath, manager, bundle);
     }
 }

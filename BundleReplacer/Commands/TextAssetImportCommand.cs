@@ -1,6 +1,7 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using Mono.Options;
+using BundleHelper = BundleReplacer.Helper.BundleHelper;
 
 namespace BundleReplacer.Commands;
 
@@ -49,12 +50,6 @@ public class TextAssetImportCommand : Command
             var textAssetInfo = manager.GetBaseField(asset, textAsset);
 
             var name = textAssetInfo["m_Name"].AsString;
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                var script = manager.GetBaseField(asset, textAssetInfo["m_Script"]["m_PathID"].AsLong);
-                if (script is not null) { name = script["m_Name"].AsString; }
-            }
-
             var id = textAsset.PathId;
             var binPath = $"{replaceDir}/{name}-{id:X16}.bin";
 
@@ -71,18 +66,6 @@ public class TextAssetImportCommand : Command
         if (!changed) { return; }
 
         bundle.file.BlockAndDirInfo.DirectoryInfos[0].SetNewData(asset.file);
-
-        try { Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!); } catch (Exception) { }
-        using (var writer = new AssetsFileWriter(outputPath + ".tmp"))
-        {
-            bundle.file.Write(writer);
-        }
-        bundle = manager.LoadBundleFile(outputPath + ".tmp", true);
-        using (var writer = new AssetsFileWriter(outputPath))
-        {
-            bundle.file.Pack(writer, AssetBundleCompressionType.LZMA);
-        }
-        manager.UnloadAll();
-        File.Delete(outputPath + ".tmp");
+        BundleHelper.CompressBundle(outputPath, manager, bundle);
     }
 }

@@ -7,6 +7,8 @@ CommandSet commands = new("BundleReplacer")
     new MonoBehaviourImportCommand(),
     new TextAssetExportCommand(),
     new TextAssetImportCommand(),
+    new Texture2DExportCommand(),
+    new Texture2DImportCommand(),
 };
 
 return commands.Run(args);
