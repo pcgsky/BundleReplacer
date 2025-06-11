@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using SixLabors.ImageSharp;
@@ -76,7 +76,7 @@ internal static class Texture2D
         return true;
     }
 
-    public static bool Import(string replaceDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo texture2D)
+    public static bool Import(string replaceDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo texture2D, Dictionary<string, StreamWrapper> resourceStreams)
     {
         var texture2DInfo = manager.GetBaseField(asset, texture2D);
 
@@ -131,11 +131,6 @@ internal static class Texture2D
             encData = TextureEncoderDecoder.Encode(image, width, height, format, 5, mips);
         }
 
-        var m_StreamData = texture2DInfo["m_StreamData"];
-        m_StreamData["offset"].AsInt = 0;
-        m_StreamData["size"].AsInt = 0;
-        m_StreamData["path"].AsString = "";
-
         if (!texture2DInfo["m_MipCount"].IsDummy) { texture2DInfo["m_MipCount"].AsInt = mips; }
 
         texture2DInfo["m_TextureFormat"].AsInt = (int)format;
@@ -145,10 +140,24 @@ internal static class Texture2D
         texture2DInfo["m_Width"].AsInt = width;
         texture2DInfo["m_Height"].AsInt = height;
 
-        var image_data = texture2DInfo["image data"];
-        image_data.Value.ValueType = AssetValueType.ByteArray;
-        image_data.TemplateField.ValueType = AssetValueType.ByteArray;
-        image_data.AsByteArray = encData;
+        var m_StreamData = texture2DInfo["m_StreamData"];
+
+        if (string.IsNullOrEmpty(m_StreamData["path"].AsString))
+        {
+            var image_data = texture2DInfo["image data"];
+            image_data.Value.ValueType = AssetValueType.ByteArray;
+            image_data.TemplateField.ValueType = AssetValueType.ByteArray;
+            image_data.AsByteArray = encData;
+        }
+        else
+        {
+            var resourceFileName = Path.GetFileName(m_StreamData["path"].AsString);
+
+            var offset = ResourceReplaceHelper.Replace(resourceFileName, bundle, resourceStreams, m_StreamData["size"].AsInt, m_StreamData["offset"].AsInt, encData);
+            m_StreamData["offset"].AsInt = (int)offset;
+            m_StreamData["size"].AsInt = encData.Length;
+        }
+
 
         var bytes = texture2DInfo.WriteToByteArray();
         texture2D.Replacer = new ContentReplacerFromBuffer(bytes);

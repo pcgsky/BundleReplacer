@@ -57,6 +57,9 @@ public class ExportCommand : Command
                 case (int)AssetClassID.Texture2D:
                     if (filter.Texture2D) { Texture2D.Export(outputDir, manager, bundle, assets, info); }
                     break;
+                case (int)AssetClassID.VideoClip:
+                    if (filter.VideoClip) { VideoClip.Export(outputDir, manager, bundle, assets, info); }
+                    break;
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET.Extra;
+using AssetsTools.NET.Extra;
 using BundleReplacer.Helper;
 using Mono.Options;
 using static BundleReplacer.Helper.BundleReplaceHelper;
@@ -43,6 +43,7 @@ public class ImportCommand : Command
         var manager = new AssetsManager();
         var bundle = manager.LoadBundleFile(bundlePath);
         var assets = manager.LoadAssetsFileFromBundle(bundle, 0);
+        var resourceStreams = new Dictionary<string, StreamWrapper>();
 
         bool changed = false;
         foreach (var info in assets.file.Metadata.AssetInfos)
@@ -56,12 +57,29 @@ public class ImportCommand : Command
                     if (filter.TextAsset) { changed = TextAsset.Import(replaceDir, manager, bundle, assets, info) || changed; }
                     break;
                 case (int)AssetClassID.Texture2D:
-                    if (filter.Texture2D) { changed = Texture2D.Import(replaceDir, manager, bundle, assets, info) || changed; }
+                    if (filter.Texture2D) { changed = Texture2D.Import(replaceDir, manager, bundle, assets, info, resourceStreams) || changed; }
+                    break;
+                case (int)AssetClassID.VideoClip:
+                    if (filter.VideoClip) { changed = VideoClip.Import(replaceDir, manager, bundle, assets, info, resourceStreams) || changed; }
                     break;
             }
         }
 
         if (!changed) { return; }
+
+        foreach (var info in bundle.file.BlockAndDirInfo.DirectoryInfos)
+        {
+            if (resourceStreams.TryGetValue(info.Name, out var stream))
+            {
+                foreach (var block in stream.BlankBlocks)
+                {
+                    stream.Stream.Position = block.Start;
+                    stream.Stream.Write(Enumerable.Repeat((byte)0, block.Length).ToArray());
+                }
+                info.SetNewData(stream.Stream.ToArray());
+                stream.Stream.Dispose();
+            }
+        }
 
         bundle.file.BlockAndDirInfo.DirectoryInfos[0].SetNewData(assets.file);
         CompressBundle(outputPath, manager, bundle);
