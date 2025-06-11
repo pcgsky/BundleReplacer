@@ -60,14 +60,16 @@ internal class StreamWrapper
         if (bytes == null || bytes.Length == 0)
             return (int)Stream.Position;
 
-        int bytesLength = bytes.Length;
+        int offset;
+        var bytesLength = bytes.Length;
 
         for (int i = 0; i < BlankBlocks.Count; i++)
         {
             var block = BlankBlocks[i];
             if (block.Length >= bytesLength)
             {
-                Stream.Position = block.Start;
+                offset = block.Start;
+                Stream.Position = offset;
                 Stream.Write(bytes);
 
                 if (block.Length == bytesLength)
@@ -78,12 +80,12 @@ internal class StreamWrapper
                 {
                     block.Start += bytesLength;
                 }
-                return block.Start;
+                return offset;
             }
         }
 
-        var offset = (int)Stream.Position;
-        Stream.Position = Stream.Length;
+        offset = (int)Stream.Length;
+        Stream.Position = offset;
         Stream.Write(bytes);
         return offset;
     }
