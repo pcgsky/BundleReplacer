@@ -13,10 +13,7 @@ internal static class Texture2D
     {
 
         var texture2DInfo = manager.GetBaseField(asset, texture2D);
-
-        var name = texture2DInfo["m_Name"].AsString.Replace('|', '_');
-        var id = texture2D.PathId;
-        var pngPath = $"{outputDir}/{name}-{id:X16}.png";
+        var pngPath = $"{outputDir}/{GetFileName(texture2D, texture2DInfo)}";
 
         var texFile = TextureFile.ReadTextureFile(texture2DInfo);
         if (texFile.m_Width == 0 && texFile.m_Height == 0)
@@ -79,10 +76,7 @@ internal static class Texture2D
     public static bool Import(string replaceDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo texture2D, Dictionary<string, StreamWrapper> resourceStreams)
     {
         var texture2DInfo = manager.GetBaseField(asset, texture2D);
-
-        var name = texture2DInfo["m_Name"].AsString.Replace('|', '_');
-        var id = texture2D.PathId;
-        var pngPath = $"{replaceDir}/{name}-{id:X16}.png";
+        var pngPath = $"{replaceDir}/{GetFileName(texture2D, texture2DInfo)}";
 
         if (!File.Exists(pngPath)) { return false; }
         using Image<Rgba32> image = Image.Load<Rgba32>(pngPath);
@@ -163,5 +157,15 @@ internal static class Texture2D
         texture2D.Replacer = new ContentReplacerFromBuffer(bytes);
 
         return true;
+    }
+
+    public static string GetFileName(AssetFileInfo texture2D, AssetTypeValueField texture2DInfo)
+    {
+        var name = texture2DInfo["m_Name"].AsString;
+
+        var id = texture2D.PathId;
+        var pngPath = $"{BundleReplaceHelper.EscapeFileName(name)}-{id:X16}.png";
+
+        return pngPath;
     }
 }

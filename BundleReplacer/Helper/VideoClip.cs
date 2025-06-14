@@ -10,11 +10,7 @@ internal static class VideoClip
     {
 
         var videoClipInfo = manager.GetBaseField(asset, videoClip);
-
-        var name = videoClipInfo["m_Name"].AsString.Replace('|', '_');
-        var id = videoClip.PathId;
-        var ext = Path.GetExtension(videoClipInfo["m_OriginalPath"].AsString);
-        var moviePath = $"{outputDir}/{name}-{id:X16}{ext}";
+        var moviePath = $"{outputDir}/{GetFileName(videoClip, videoClipInfo)}";
 
         var resource = videoClipInfo["m_ExternalResources"];
         var resourcePath = resource["m_Source"].AsString;
@@ -42,11 +38,7 @@ internal static class VideoClip
     public static bool Import(string replaceDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo videoClip, Dictionary<string, StreamWrapper> resourceStreams)
     {
         var videoClipInfo = manager.GetBaseField(asset, videoClip);
-
-        var name = videoClipInfo["m_Name"].AsString.Replace('|', '_');
-        var id = videoClip.PathId;
-        var ext = Path.GetExtension(videoClipInfo["m_OriginalPath"].AsString);
-        var moviePath = $"{replaceDir}/{name}-{id:X16}{ext}";
+        var moviePath = $"{replaceDir}/{GetFileName(videoClip, videoClipInfo)}";
 
         if (!File.Exists(moviePath)) { return false; }
         using (var movieInfo = new MediaInfo.MediaInfo())
@@ -73,5 +65,16 @@ internal static class VideoClip
         videoClip.Replacer = new ContentReplacerFromBuffer(bytes);
 
         return true;
+    }
+
+    public static string GetFileName(AssetFileInfo videoClip, AssetTypeValueField videoClipInfo)
+    {
+        var name = videoClipInfo["m_Name"].AsString;
+
+        var id = videoClip.PathId;
+        var ext = Path.GetExtension(videoClipInfo["m_OriginalPath"].AsString);
+        var moviePath = $"{BundleReplaceHelper.EscapeFileName(name)}-{id:X16}{ext}";
+
+        return moviePath;
     }
 }

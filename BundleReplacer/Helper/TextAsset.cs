@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 
 namespace BundleReplacer.Helper;
@@ -8,16 +8,7 @@ internal static class TextAsset
     public static bool Export(string outputDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo textAsset)
     {
         var textAssetInfo = manager.GetBaseField(asset, textAsset);
-
-        var name = textAssetInfo["m_Name"].AsString;
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            var script = manager.GetBaseField(asset, textAssetInfo["m_Script"]["m_PathID"].AsLong);
-            if (script is not null) { name = script["m_Name"].AsString; }
-        }
-
-        var id = textAsset.PathId;
-        var binPath = $"{outputDir}/{name}-{id:X16}.bin";
+        var binPath = $"{outputDir}/{GetFileName(textAsset, textAssetInfo)}";
 
         Directory.CreateDirectory(outputDir);
         File.WriteAllBytes(binPath, textAssetInfo["m_Script"].AsByteArray);
@@ -28,10 +19,7 @@ internal static class TextAsset
     public static bool Import(string replaceDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo textAsset)
     {
         var textAssetInfo = manager.GetBaseField(asset, textAsset);
-
-        var name = textAssetInfo["m_Name"].AsString;
-        var id = textAsset.PathId;
-        var binPath = $"{replaceDir}/{name}-{id:X16}.bin";
+        var binPath = $"{replaceDir}/{GetFileName(textAsset, textAssetInfo)}";
 
         if (!File.Exists(binPath)) { return false; }
 
@@ -41,5 +29,15 @@ internal static class TextAsset
         textAsset.Replacer = new ContentReplacerFromBuffer(bytes);
 
         return true;
+    }
+
+    public static string GetFileName(AssetFileInfo textAsset, AssetTypeValueField textAssetInfo)
+    {
+        var name = textAssetInfo["m_Name"].AsString;
+
+        var id = textAsset.PathId;
+        var binPath = $"{BundleReplaceHelper.EscapeFileName(name)}-{id:X16}.bin";
+
+        return binPath;
     }
 }

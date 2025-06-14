@@ -70,4 +70,11 @@ internal static class BundleReplaceHelper
         }
         return filter;
     }
+
+    public static string EscapeFileName(string name)
+    {
+        return name.Replace('|', '_').Replace('/', '_').Replace('\\', '_').Replace(':', '_')
+            .Replace('*', '_').Replace('?', '_').Replace('"', '_').Replace('<', '_')
+            .Replace('>', '_').Replace(' ', '_');
+    }
 }
