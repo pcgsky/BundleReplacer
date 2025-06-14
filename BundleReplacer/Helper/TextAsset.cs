@@ -5,10 +5,10 @@ namespace BundleReplacer.Helper;
 
 internal static class TextAsset
 {
-    public static bool Export(string outputDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo textAsset)
+    public static bool Export(int index, string outputDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo textAsset)
     {
         var textAssetInfo = manager.GetBaseField(asset, textAsset);
-        var binPath = $"{outputDir}/{GetFileName(textAsset, textAssetInfo)}";
+        var binPath = $"{outputDir}/{GetFileName(index, textAsset, textAssetInfo)}";
 
         Directory.CreateDirectory(outputDir);
         File.WriteAllBytes(binPath, textAssetInfo["m_Script"].AsByteArray);
@@ -16,10 +16,10 @@ internal static class TextAsset
         return true;
     }
 
-    public static bool Import(string replaceDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo textAsset)
+    public static bool Import(int index, string replaceDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo textAsset)
     {
         var textAssetInfo = manager.GetBaseField(asset, textAsset);
-        var binPath = $"{replaceDir}/{GetFileName(textAsset, textAssetInfo)}";
+        var binPath = $"{replaceDir}/{GetFileName(index, textAsset, textAssetInfo)}";
 
         if (!File.Exists(binPath)) { return false; }
 
@@ -31,12 +31,12 @@ internal static class TextAsset
         return true;
     }
 
-    public static string GetFileName(AssetFileInfo textAsset, AssetTypeValueField textAssetInfo)
+    public static string GetFileName(int index, AssetFileInfo textAsset, AssetTypeValueField textAssetInfo)
     {
         var name = textAssetInfo["m_Name"].AsString;
 
         var id = textAsset.PathId;
-        var binPath = $"{BundleReplaceHelper.EscapeFileName(name)}-{id:X16}.bin";
+        var binPath = $"{BundleReplaceHelper.EscapeFileName(name)}-{(index == 0 ? "" : $"{index}_")}{id:X16}.bin";
 
         return binPath;
     }

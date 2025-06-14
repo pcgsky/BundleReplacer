@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET.Extra;
+using AssetsTools.NET.Extra;
 using BundleReplacer.Helper;
 using Mono.Options;
 using static BundleReplacer.Helper.BundleReplaceHelper;
@@ -41,25 +41,29 @@ public class ExportCommand : Command
     {
         var manager = new AssetsManager();
         var bundle = manager.LoadBundleFile(bundlePath);
-        var assets = manager.LoadAssetsFileFromBundle(bundle, 0);
 
-
-        foreach (var info in assets.file.Metadata.AssetInfos)
+        for (int index = 0; index < bundle.file.BlockAndDirInfo.DirectoryInfos.Count; index++)
         {
-            switch (info.TypeId)
+            var assetsFile = manager.LoadAssetsFileFromBundle(bundle, index);
+            if (assetsFile is null) { continue; }
+
+            foreach (var info in assetsFile.file.Metadata.AssetInfos)
             {
-                case (int)AssetClassID.MonoBehaviour:
-                    if (filter.MonoBehaviour) { MonoBehaviour.Export(outputDir, manager, bundle, assets, info); }
-                    break;
-                case (int)AssetClassID.TextAsset:
-                    if (filter.TextAsset) { TextAsset.Export(outputDir, manager, bundle, assets, info); }
-                    break;
-                case (int)AssetClassID.Texture2D:
-                    if (filter.Texture2D) { Texture2D.Export(outputDir, manager, bundle, assets, info); }
-                    break;
-                case (int)AssetClassID.VideoClip:
-                    if (filter.VideoClip) { VideoClip.Export(outputDir, manager, bundle, assets, info); }
-                    break;
+                switch (info.TypeId)
+                {
+                    case (int)AssetClassID.MonoBehaviour:
+                        if (filter.MonoBehaviour) { MonoBehaviour.Export(index, outputDir, manager, bundle, assetsFile, info); }
+                        break;
+                    case (int)AssetClassID.TextAsset:
+                        if (filter.TextAsset) { TextAsset.Export(index, outputDir, manager, bundle, assetsFile, info); }
+                        break;
+                    case (int)AssetClassID.Texture2D:
+                        if (filter.Texture2D) { Texture2D.Export(index, outputDir, manager, bundle, assetsFile, info); }
+                        break;
+                    case (int)AssetClassID.VideoClip:
+                        if (filter.VideoClip) { VideoClip.Export(index, outputDir, manager, bundle, assetsFile, info); }
+                        break;
+                }
             }
         }
     }

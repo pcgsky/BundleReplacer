@@ -46,22 +46,28 @@ public class ImportCommand : Command
         var resourceStreams = new Dictionary<string, StreamWrapper>();
 
         bool changed = false;
-        foreach (var info in assets.file.Metadata.AssetInfos)
+
+        for (int index = 0; index < bundle.file.BlockAndDirInfo.DirectoryInfos.Count; index++)
         {
-            switch (info.TypeId)
+            var assetsFile = manager.LoadAssetsFileFromBundle(bundle, index);
+            if (assetsFile is null) { continue; }
+            foreach (var info in assets.file.Metadata.AssetInfos)
             {
-                case (int)AssetClassID.MonoBehaviour:
-                    if (filter.MonoBehaviour) { changed = MonoBehaviour.Import(replaceDir, manager, bundle, assets, info) || changed; }
-                    break;
-                case (int)AssetClassID.TextAsset:
-                    if (filter.TextAsset) { changed = TextAsset.Import(replaceDir, manager, bundle, assets, info) || changed; }
-                    break;
-                case (int)AssetClassID.Texture2D:
-                    if (filter.Texture2D) { changed = Texture2D.Import(replaceDir, manager, bundle, assets, info, resourceStreams) || changed; }
-                    break;
-                case (int)AssetClassID.VideoClip:
-                    if (filter.VideoClip) { changed = VideoClip.Import(replaceDir, manager, bundle, assets, info, resourceStreams) || changed; }
-                    break;
+                switch (info.TypeId)
+                {
+                    case (int)AssetClassID.MonoBehaviour:
+                        if (filter.MonoBehaviour) { changed = MonoBehaviour.Import(index, replaceDir, manager, bundle, assets, info) || changed; }
+                        break;
+                    case (int)AssetClassID.TextAsset:
+                        if (filter.TextAsset) { changed = TextAsset.Import(index, replaceDir, manager, bundle, assets, info) || changed; }
+                        break;
+                    case (int)AssetClassID.Texture2D:
+                        if (filter.Texture2D) { changed = Texture2D.Import(index, replaceDir, manager, bundle, assets, info, resourceStreams) || changed; }
+                        break;
+                    case (int)AssetClassID.VideoClip:
+                        if (filter.VideoClip) { changed = VideoClip.Import(index, replaceDir, manager, bundle, assets, info, resourceStreams) || changed; }
+                        break;
+                }
             }
         }
 
@@ -79,9 +85,12 @@ public class ImportCommand : Command
                 info.SetNewData(stream.Stream.ToArray());
                 stream.Stream.Dispose();
             }
+            else
+            {
+                info.SetNewData(assets.file);
+            }
         }
 
-        bundle.file.BlockAndDirInfo.DirectoryInfos[0].SetNewData(assets.file);
         CompressBundle(outputPath, manager, bundle);
     }
 }

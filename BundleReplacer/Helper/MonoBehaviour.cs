@@ -5,10 +5,10 @@ namespace BundleReplacer.Helper;
 
 internal static class MonoBehaviour
 {
-    public static bool Export(string outputDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo monoBehaviour)
+    public static bool Export(int index, string outputDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo monoBehaviour)
     {
         var monoBehaviourInfo = manager.GetBaseField(asset, monoBehaviour);
-        var jsonPath = $"{outputDir}/{GetFileName(manager, bundle, asset, monoBehaviour, monoBehaviourInfo)}";
+        var jsonPath = $"{outputDir}/{GetFileName(index, manager, bundle, asset, monoBehaviour, monoBehaviourInfo)}";
 
         Directory.CreateDirectory(outputDir);
         using var writer = new StreamWriter(jsonPath);
@@ -17,10 +17,10 @@ internal static class MonoBehaviour
         return true;
     }
 
-    public static bool Import(string replaceDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo monoBehaviour)
+    public static bool Import(int index, string replaceDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo monoBehaviour)
     {
         var monoBehaviourInfo = manager.GetBaseField(asset, monoBehaviour);
-        var jsonPath = $"{replaceDir}/{GetFileName(manager, bundle, asset, monoBehaviour, monoBehaviourInfo)}";
+        var jsonPath = $"{replaceDir}/{GetFileName(index, manager, bundle, asset, monoBehaviour, monoBehaviourInfo)}";
 
         if (!File.Exists(jsonPath)) { return false; }
 
@@ -32,7 +32,7 @@ internal static class MonoBehaviour
         return true;
     }
 
-    public static string GetFileName(AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo monoBehaviour, AssetTypeValueField monoBehaviourInfo)
+    public static string GetFileName(int index, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo monoBehaviour, AssetTypeValueField monoBehaviourInfo)
     {
         var name = monoBehaviourInfo["m_Name"].AsString;
 
@@ -57,7 +57,7 @@ internal static class MonoBehaviour
         }
 
         var id = monoBehaviour.PathId;
-        var jsonPath = $"{BundleReplaceHelper.EscapeFileName(name)}-{id:X16}.json";
+        var jsonPath = $"{BundleReplaceHelper.EscapeFileName(name)}-{(index == 0 ? "" : $"{index}_")}{id:X16}.json";
 
         return jsonPath;
     }

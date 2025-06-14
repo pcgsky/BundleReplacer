@@ -9,11 +9,11 @@ namespace BundleReplacer.Helper;
 
 internal static class Texture2D
 {
-    public static bool Export(string outputDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo texture2D)
+    public static bool Export(int index, string outputDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo texture2D)
     {
 
         var texture2DInfo = manager.GetBaseField(asset, texture2D);
-        var pngPath = $"{outputDir}/{GetFileName(texture2D, texture2DInfo)}";
+        var pngPath = $"{outputDir}/{GetFileName(index, texture2D, texture2DInfo)}";
 
         var texFile = TextureFile.ReadTextureFile(texture2DInfo);
         if (texFile.m_Width == 0 && texFile.m_Height == 0)
@@ -73,10 +73,10 @@ internal static class Texture2D
         return true;
     }
 
-    public static bool Import(string replaceDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo texture2D, Dictionary<string, StreamWrapper> resourceStreams)
+    public static bool Import(int index, string replaceDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo texture2D, Dictionary<string, StreamWrapper> resourceStreams)
     {
         var texture2DInfo = manager.GetBaseField(asset, texture2D);
-        var pngPath = $"{replaceDir}/{GetFileName(texture2D, texture2DInfo)}";
+        var pngPath = $"{replaceDir}/{GetFileName(index, texture2D, texture2DInfo)}";
 
         if (!File.Exists(pngPath)) { return false; }
         using Image<Rgba32> image = Image.Load<Rgba32>(pngPath);
@@ -159,12 +159,12 @@ internal static class Texture2D
         return true;
     }
 
-    public static string GetFileName(AssetFileInfo texture2D, AssetTypeValueField texture2DInfo)
+    public static string GetFileName(int index, AssetFileInfo texture2D, AssetTypeValueField texture2DInfo)
     {
         var name = texture2DInfo["m_Name"].AsString;
 
         var id = texture2D.PathId;
-        var pngPath = $"{BundleReplaceHelper.EscapeFileName(name)}-{id:X16}.png";
+        var pngPath = $"{BundleReplaceHelper.EscapeFileName(name)}-{(index == 0 ? "" : $"{index}_")}{id:X16}.png";
 
         return pngPath;
     }

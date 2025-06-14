@@ -6,11 +6,11 @@ namespace BundleReplacer.Helper;
 
 internal static class VideoClip
 {
-    public static bool Export(string outputDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo videoClip)
+    public static bool Export(int index, string outputDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo videoClip)
     {
 
         var videoClipInfo = manager.GetBaseField(asset, videoClip);
-        var moviePath = $"{outputDir}/{GetFileName(videoClip, videoClipInfo)}";
+        var moviePath = $"{outputDir}/{GetFileName(index, videoClip, videoClipInfo)}";
 
         var resource = videoClipInfo["m_ExternalResources"];
         var resourcePath = resource["m_Source"].AsString;
@@ -35,10 +35,10 @@ internal static class VideoClip
         return true;
     }
 
-    public static bool Import(string replaceDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo videoClip, Dictionary<string, StreamWrapper> resourceStreams)
+    public static bool Import(int index, string replaceDir, AssetsManager manager, BundleFileInstance bundle, AssetsFileInstance asset, AssetFileInfo videoClip, Dictionary<string, StreamWrapper> resourceStreams)
     {
         var videoClipInfo = manager.GetBaseField(asset, videoClip);
-        var moviePath = $"{replaceDir}/{GetFileName(videoClip, videoClipInfo)}";
+        var moviePath = $"{replaceDir}/{GetFileName(index, videoClip, videoClipInfo)}";
 
         if (!File.Exists(moviePath)) { return false; }
         using (var movieInfo = new MediaInfo.MediaInfo())
@@ -67,13 +67,13 @@ internal static class VideoClip
         return true;
     }
 
-    public static string GetFileName(AssetFileInfo videoClip, AssetTypeValueField videoClipInfo)
+    public static string GetFileName(int index, AssetFileInfo videoClip, AssetTypeValueField videoClipInfo)
     {
         var name = videoClipInfo["m_Name"].AsString;
 
         var id = videoClip.PathId;
         var ext = Path.GetExtension(videoClipInfo["m_OriginalPath"].AsString);
-        var moviePath = $"{BundleReplaceHelper.EscapeFileName(name)}-{id:X16}{ext}";
+        var moviePath = $"{BundleReplaceHelper.EscapeFileName(name)}-{(index == 0 ? "" : $"{index}_")}{id:X16}{ext}";
 
         return moviePath;
     }
