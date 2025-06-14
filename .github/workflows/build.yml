@@ -38,6 +38,7 @@ jobs:
         with:
           dotnet-version: 8.x
           cache: true
+          cache-dependency-path: BundleReplacer/packages.lock.json
       - name: Build
         run: |
           dotnet publish BundleReplacer -c Release -o Release
