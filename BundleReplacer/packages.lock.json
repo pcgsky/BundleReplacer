@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net8.0": {
+      "MediaInfo.Wrapper.Core": {
+        "type": "Direct",
+        "requested": "[21.9.3, )",
+        "resolved": "21.9.3",
+        "contentHash": "CJj9kxRIyVJ3BG42GzMNfM3q20mzuUDimec0FZ83uMN9eyw+RtH+GezY64FG4aqTTJy6LiIyldmo5YXpaz/l1Q==",
+        "dependencies": {
+          "MediaInfo.Core.Native": "21.9.1",
+          "Microsoft.Extensions.Logging.Abstractions": "6.0.2"
+        }
+      },
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[8.0.17, )",
+        "resolved": "8.0.17",
+        "contentHash": "x5/y4l8AtshpBOrCZdlE4txw8K3e3s9meBFeZeR3l8hbbku2V7kK6ojhXvrbjg1rk3G+JqL1BI26gtgc1ZrdUw=="
+      },
+      "Mono.Options": {
+        "type": "Direct",
+        "requested": "[6.12.0.148, )",
+        "resolved": "6.12.0.148",
+        "contentHash": "kf6bdXnP4IzqIp4bJ1YKPI3/PAcOV6qm4mznChJ3c92zHQUXTWJSp0+h+Cfcii0O6m/EgW7KA+tbCiB2al0DDA=="
+      },
+      "Newtonsoft.Json": {
+        "type": "Direct",
+        "requested": "[13.0.3, )",
+        "resolved": "13.0.3",
+        "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
+      },
+      "SixLabors.ImageSharp": {
+        "type": "Direct",
+        "requested": "[3.1.7, )",
+        "resolved": "3.1.7",
+        "contentHash": "9fIOOAsyLFid6qKypM2Iy0Z3Q9yoanV8VoYAHtI2sYGMNKzhvRTjgFDHonIiVe+ANtxIxM6SuqUzj0r91nItpA=="
+      },
+      "AssetRipper.TextureDecoder": {
+        "type": "Transitive",
+        "resolved": "2.1.1",
+        "contentHash": "dB49qA4n9Wdeyninhoww5NhSldxsOCu2HQnr1abakRexQ7OtrxGZuD+ta0MtBgSYQkyvQm70gXuR+6kwo7E7ug=="
+      },
+      "MediaInfo.Core.Native": {
+        "type": "Transitive",
+        "resolved": "21.9.1",
+        "contentHash": "2jXjoFCAzI2XKRPGZNzynIebAlKSvMhUzseNjH06TrS74Kb0F4mr0RF881Z+k6POrNdt/I+42B/TJu98UL39Dg=="
+      },
+      "Microsoft.Extensions.Logging.Abstractions": {
+        "type": "Transitive",
+        "resolved": "6.0.2",
+        "contentHash": "pwXCZKaA7m5wgmCj49dW+H1RPSY7U62SKLTQYCcavf/k3Nyt/WnBgAjG4jMGnwy9rElfAZ2KvxvM5CJzJWG0hg=="
+      },
+      "StbImageSharp": {
+        "type": "Transitive",
+        "resolved": "2.27.13",
+        "contentHash": "tHnP2RHgFzWbOS96UqvRO/LYU1WmpMT1bKiig45we+rpaXacBr11Fq2IBF+MqlgyLyNXxRz18E66qr4R9YlSbg=="
+      },
+      "StbImageWriteSharp": {
+        "type": "Transitive",
+        "resolved": "1.16.7",
+        "contentHash": "NF9kOxi0iS9VunklnRKgOpAWC2knCGKRjdy7RT6XAqYNyb7LQfyPHPdl4l1fJw7TFYKrGQzQOmK1XpBONC2MoA=="
+      },
+      "assetstools.net": {
+        "type": "Project"
+      },
+      "assetstools.net.texture": {
+        "type": "Project",
+        "dependencies": {
+          "AssetRipper.TextureDecoder": "[2.1.1, )",
+          "AssetsTools.NET": "[1.0.0, )",
+          "StbImageSharp": "[2.27.13, )",
+          "StbImageWriteSharp": "[1.16.7, )"
+        }
+      }
+    }
+  }
+}
