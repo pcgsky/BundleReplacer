@@ -113,7 +113,8 @@ namespace BundleReplacer
         {
             try
             {
-                var baseField = am.GetTypeInstance(assets, assetInfo).GetBaseField();
+                // 使用新的API获取基础字段
+                var baseField = am.GetBaseField(assets, assetInfo);
                 var assetName = baseField.Get("m_Name").AsString;
                 
                 if (string.IsNullOrEmpty(assetName))
@@ -122,9 +123,7 @@ namespace BundleReplacer
                 var safeName = MakeSafeFileName(assetName);
                 var outputPath = Path.Combine(outputDir, $"{safeName}_{assetInfo.PathId}.{typeName.ToLower()}");
 
-                var asset = am.GetBaseField(assets, assetInfo);
-                var assetData = asset.WriteToByteArray();
-
+                var assetData = baseField.WriteToByteArray();
                 File.WriteAllBytes(outputPath, assetData);
                 Console.WriteLine($"Exported: {outputPath}");
             }
@@ -194,16 +193,15 @@ namespace BundleReplacer
                         var newData = File.ReadAllBytes(filePath);
                         
                         // 使用新的API替换资产数据
-                        var templateField = am.GetTemplateBaseField(assets.file, assetInfo);
-                        var newBaseField = am.GetTypeInstance(assets.file, assetInfo).GetBaseField();
+                        var baseField = am.GetBaseField(assets, assetInfo);
                         
                         using (var reader = new AssetsFileReader(new MemoryStream(newData)))
                         {
-                            newBaseField.Read(reader);
+                            baseField.Read(reader);
                         }
                         
                         // 更新资产数据
-                        var byteArray = newBaseField.WriteToByteArray();
+                        var byteArray = baseField.WriteToByteArray();
                         assetInfo.SetNewData(byteArray);
                         
                         return true;
