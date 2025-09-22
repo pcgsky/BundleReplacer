@@ -48,21 +48,3 @@ jobs:
         with:
           name: BundleReplacer
           path: Release/*
-      - name: Create release
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates: true
-          artifacts: BundleReplacer.zip
-          name: "${{ github.ref_name}}"
-          draft: true
-          tag: "${{ github.ref_name}}"
-      - name: Publish draft release
-        if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates: true
-          artifacts: BundleReplacer.zip
-          name: "${{ github.event.head_commit.message }}"
-          prerelease: true
-          tag: publish
