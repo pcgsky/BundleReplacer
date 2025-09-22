@@ -200,10 +200,13 @@ namespace BundleReplacer
                             TemplateField = templateField
                         };
                         
+                        // 创建空的AssetTypeValue
+                        var value = new AssetTypeValue(EnumValueTypes.None, null);
+                        
                         // 读取新数据
                         using (var reader = new AssetsFileReader(new MemoryStream(newData)))
                         {
-                            baseField.Read(reader, new AssetTypeValue(), templateField, new List<AssetTypeValueField>());
+                            baseField.Read(reader, value, templateField, new List<AssetTypeValueField>());
                         }
                         
                         // 更新资产数据
