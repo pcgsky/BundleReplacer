@@ -41,6 +41,7 @@ jobs:
           cache-dependency-path: BundleReplacer/packages.lock.json
       - name: Build
         run: |
+          dotnet add package System.CommandLine --version 2.0.0-beta4.22272.1
           dotnet publish BundleReplacer -c Release -o Release
           Compress-Archive -Path "Release/*" -Destination "BundleReplacer.zip" -Force
       - name: Upload artifact
