@@ -113,7 +113,6 @@ namespace BundleReplacer
         {
             try
             {
-                // 使用新的API获取基础字段
                 var baseField = am.GetBaseField(assets, assetInfo);
                 var assetName = baseField.Get("m_Name").AsString;
                 
@@ -192,12 +191,19 @@ namespace BundleReplacer
                     {
                         var newData = File.ReadAllBytes(filePath);
                         
-                        // 使用新的API替换资产数据
-                        var baseField = am.GetBaseField(assets, assetInfo);
+                        // 获取模板字段
+                        var templateField = am.GetTemplateBaseField(assets.file, assetInfo);
                         
+                        // 创建新的基础字段
+                        var baseField = new AssetTypeValueField()
+                        {
+                            TemplateField = templateField
+                        };
+                        
+                        // 读取新数据
                         using (var reader = new AssetsFileReader(new MemoryStream(newData)))
                         {
-                            baseField.Read(reader);
+                            baseField.Read(reader, new AssetTypeValue(), templateField, new List<AssetTypeValueField>());
                         }
                         
                         // 更新资产数据
