@@ -62,7 +62,6 @@ namespace BundleReplacer
                 var bundleInst = am.LoadBundleFile(bundlePath);
                 var assets = am.LoadAssetsFileFromBundle(bundleInst, 0);
 
-                // 获取所有资产信息
                 var assetInfos = assets.file.GetAssetsOfType(AssetClassID.MonoBehaviour)
                     .Concat(assets.file.GetAssetsOfType(AssetClassID.TextAsset))
                     .Concat(assets.file.GetAssetsOfType(AssetClassID.Texture2D));
@@ -193,8 +192,20 @@ namespace BundleReplacer
                     if (assetInfo != null && ShouldProcess(assetInfo, typeFilters, classIdFilters))
                     {
                         var newData = File.ReadAllBytes(filePath);
-                        var asset = am.GetBaseField(assets, assetInfo);
-                        asset.ReadFromByteArray(newData);
+                        
+                        // 使用新的API替换资产数据
+                        var templateField = am.GetTemplateBaseField(assets.file, assetInfo);
+                        var newBaseField = am.GetTypeInstance(assets.file, assetInfo).GetBaseField();
+                        
+                        using (var reader = new AssetsFileReader(new MemoryStream(newData)))
+                        {
+                            newBaseField.Read(reader);
+                        }
+                        
+                        // 更新资产数据
+                        var byteArray = newBaseField.WriteToByteArray();
+                        assetInfo.SetNewData(byteArray);
+                        
                         return true;
                     }
                 }
